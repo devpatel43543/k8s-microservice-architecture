@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: container2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: container2
+  template:
+    metadata:
+      labels:
+        app: container2
+    spec:
+      containers:
+      - name: container2
+        image: us-central1-docker.pkg.dev/kubernetes-a3-453021/kubernetes-registry/devkumar640/container2:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 4000
+        env:
+        - name: PORT
+          value: "4000"
+        - name: FILE_DIRECTORY
+          value: "/data"
+        volumeMounts:  
+        - name: pvc-data
+          mountPath: /data
+      volumes:  
+      - name: pvc-data
+        persistentVolumeClaim:
+          claimName: a2-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: container2-service
+spec:
+  selector:
+    app: container2
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 4000
+  type: ClusterIP
